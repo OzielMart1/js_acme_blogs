@@ -1,5 +1,5 @@
 //1
-function creaetElemWithText(elementType= "p", textContent= "", className= ""){
+function createElemWithText(elementType= "p", textContent= "", className= ""){
     const element = document.createElement(elementType);
     element.textContenet= textContent;
 
