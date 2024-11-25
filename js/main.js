@@ -12,7 +12,7 @@ function createElemWithText(elementType= "p", textContent= "", className= ""){
 
 // 2
 
-function createSelectOptions(users){
+function createSelectOptions(users){ // this one is correct
     if(!users){
         return undefined;
     }
@@ -59,7 +59,7 @@ function toggleCommentButton(postId){
 }
 
 //5
-function deleteChildElement(parentElement){
+function deleteChildElements(parentElement){
     let child=parentElement.lastElementChild;
     while(child){
         parent.removeChild(child);
@@ -84,8 +84,8 @@ function addButtonListeners(){
     }
     return buttons;
 }
-//7
-function removeButtonListeners(){
+//7 // this one is correct 
+function removeButtonListeners(){ 
     const buttons=document.querySelectorAll('main button');
 
     buttons.forEach(button =>{
@@ -100,3 +100,68 @@ function removeButtonListeners(){
     return buttons;
 }
 //8
+function createComments(comments){
+    const fragment=document.createDocumentFragment();
+
+    comments.forEach(comment=>{
+        const article=document.createElement('article');
+        const h3=createElemWithText('h3', comment.name);
+
+        const bodyPara=createElemWithText('p', comment.body);
+
+        const emailPara=createElemWithText('p', `From: ${comment.email}`);
+
+        article.appendChild(h3);
+        article.appendChild(bodyPara);
+        article.appendChild(emailPara);
+
+        fragment.appendChild(article);
+
+    });
+    return fragment;
+}
+
+//9 
+function createSelectOptions(users){
+    return users.map(user => {
+        const option= document.createElement('option');
+        option.value =user.id;
+        option.textContent=user.name;
+        return option;
+    });
+}
+
+//10 
+
+async function getUsers(){
+    try{
+        const response = await fetch('https://jsonplaceholder.typicode.com/users');
+        if(!response.ok){
+            throw new Error('Failed to fetch users')
+        }
+
+        const usersData=await response.json();
+        return usersData;
+    }catch(error){
+        console.error('Error fetching users:', error);
+        return null;
+    }
+}
+
+//11 
+async function getUserPosts(userId){
+    try{
+        const response= await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
+        if(!response.ok){
+            throw new Error('Failed to fetch posts');
+        }
+
+        const postsData= await response.json();
+
+        return postsData;
+
+    }catch(error){
+        console.error('Error fetching posts for user:', error);
+        return null;
+    }
+}
