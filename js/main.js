@@ -1,7 +1,7 @@
-//1
+//1 //fixed
 function createElemWithText(elementType= "p", textContent= "", className= ""){
     const element = document.createElement(elementType);
-    element.textContenet= textContent;
+    element.textContent= textContent;
 
     if(className){
         element.className= className;
@@ -10,7 +10,7 @@ function createElemWithText(elementType= "p", textContent= "", className= ""){
     return element;
 }
 
-// 2
+// 2 // correct 
 
 function createSelectOptions(users){
     if(!users){
@@ -31,44 +31,50 @@ function createSelectOptions(users){
 return options;
 
 }
-//3
+//3 //fixed
 function toggleCommentSection(postId){
-    const section= document.querySelector(`selection[data-post-id= "${postId}" ]`);
+    const section= document.querySelector(`section[data-post-id= "${postId}" ]`);
     if (section){
         section.classList.toggle('hide');
 
         return section;
     }else{
         console.log('Section not found');
-        return undefined;
+        return null;
     }
 }
-//4
+//4 //fixed
 function toggleCommentButton(postId){
-    const button= documet.querySelector(`button[data=post-id"${postId}"]`);
+    const button= documet.querySelector(`button[data-post-id"${postId}"]`);
 
     if(button){
-        button.texContent=button.textContent ==='Show Comments'
+        button.textContent=button.textContent ==='Show Comments'
         ? 'Hide Comments': 'Show Commments';
         
         return button;
     }else{
         console.log('Button not found');
     }
-    return undefined;
+    return null;
 }
 
-//5
+//5 //fixed
 function deleteChildElements(parentElement){
+
+    if(!parentElement || !parentElement instanceof HTMLElement){
+        console.log('Invalid parent element');
+        return undefined;
+    }
+
     let child=parentElement.lastElementChild;
     while(child){
-        parent.removeChild(child);
+        parentElement.removeChild(child);
         child= parentElement.lastElementChild;
     }
     return parentElement;
 }
 
-//6
+//6 //fixed
 function addButtonListeners(){
     const buttons=document.querySelectorAll('main button');
     if(buttons.length > 0){
@@ -76,13 +82,13 @@ function addButtonListeners(){
             const postId= button.dataset.postId;
 
             if(postId){
-                button.addEventListener('click', (event)=>{
-                    toggleCommentSection(event,postId);
+                button.addEventListener('click', ()=>{
+                    toggleCommentSection(postId);
                 });
             }
         });
     }
-    return buttons;
+    return true;
 }
 //7 // this one is correct 
 function removeButtonListeners(){ 
@@ -99,17 +105,21 @@ function removeButtonListeners(){
     });
     return buttons;
 }
-//8
+//8 //fixed
 function createComments(comments){
+
+    if(!comments || !Array.isArray(comments)){
+        return undefined;
+    }
     const fragment=document.createDocumentFragment();
 
     comments.forEach(comment=>{
         const article=document.createElement('article');
-        const h3=createElemWithText('h3', comment.name);
+        const h3=createElemWithText('h3', comment.name || 'No name provided');
 
-        const bodyPara=createElemWithText('p', comment.body);
+        const bodyPara=createElemWithText('p', comment.body|| 'No body text provied');
 
-        const emailPara=createElemWithText('p', `From: ${comment.email}`);
+        const emailPara=createElemWithText('p', `From: ${comment.email}|| No email provide`);
 
         article.appendChild(h3);
         article.appendChild(bodyPara);
@@ -123,6 +133,10 @@ function createComments(comments){
 
 //9 
 function populateSelectMenu(users){
+
+    if(!users || !Array.isArray(users)){
+        return undefined;
+    }
     const selectMenu=document.getElementById('selectMenu');
     selectMenu.innerHTML='';
 
@@ -151,8 +165,13 @@ async function getUsers(){ //correct
     }
 }
 
-//11 
+//11 //fixed
 async function getUserPosts(userId){
+
+    if(!userId){
+        return undefined;
+
+    }
     try{
         const response= await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
         if(!response.ok){
@@ -169,8 +188,11 @@ async function getUserPosts(userId){
     }
 }
 
-//12 
+//12 //fixed
 async function getUser(userId){
+    if(!userId){
+        return undefined;
+    }
     try{
         const response= await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`);
 
@@ -186,8 +208,12 @@ async function getUser(userId){
     throw error;
     }
 }
+
 //13
 async function getPostComments(postId){
+    if(!postId){
+        return undefined;
+    }
     try{
         const response= await fetch(`https://jsonplaceholder.typicode.com/comments?postId=${postId}`);
 
@@ -203,8 +229,12 @@ async function getPostComments(postId){
         throw error;
     }
 }
-//14
+//14 fixed
 async function displayComments(postId){
+
+    if(!postId){
+        return undefined;
+    }
     try{
         const section = document.createElement('section');
         section.dataset.postId= postId;
@@ -212,17 +242,24 @@ async function displayComments(postId){
         section.classList.add('comments', 'hide');
 
         const comments= await getPostComments(postId);
-        const fragment= createComments(comments);
 
-        section.appendChild(fragment);
+        if(comments && Array.isArray(comments)){
+            const fragment=createComments(comments);
+            section.appendChild(fragment);
+        }
+        
         return section;
     }catch(error){
         console.error('Error displaying comments: ', error);
         throw error;
     }
 }
-//15 
+//15 //fixed
 async function createPosts(postss){
+    if(!posts){
+        return undefined;
+    }
+
     const fragment= document.createDocumentFragment();
     for(const post of posts){
         try{
@@ -269,19 +306,29 @@ async function createPosts(postss){
 async function displayPosts(posts){
     const main= document.querySelector('main');
 
-    const element = posts && posts.length>0
-    ? await createPosts(posts): createElemWithText('p', 'No posts available.');
-    main.appendChild(element);
+    if(!posts||posts.length ===0){
+        const noPostsMessage= createElemWithText('p', 'Select an Employee to display their posts.');
+        noPostsMessage.classList.add('default-text');
+        main.appendChild(noPostsMessage);
+        return noPostsMessage
+    }
 
-    return element;
+    const fragment=await createPosts(posts);
+    main.appendChild(fragment);
+    
+
+    return fragment;
 
 }
 
-//17 
+//17  //fixed
 
 async function toggleComments(event,postId){
+    if(!event|| !postId){
+        return undefined;
+    }
     try{
-        event.target.listener= true;
+        
 
         const section = await toggleCommentSection(postId);
 
@@ -290,7 +337,7 @@ async function toggleComments(event,postId){
         return [section,button];
     }catch(error){
         console.error('Error toggling comments: ', error);
-
+        return undefined;
     }
 }
 //18 
@@ -309,7 +356,7 @@ async function refreshPosts(posts){
 
     }catch(error){
         console.error('Error refreshing posts: ', error);
-
+        return [];
     }
 
 }
@@ -323,6 +370,9 @@ async function selectMenuChangeEventHandler(event){
         const userId= event.target.value|| 1;
 
         const posts= await getUserPosts(userId);
+        if(!posts){
+            return [userId, [], [] ];
+        }
 
         const refreshPostsArray= await refreshPosts(posts);
 
@@ -332,7 +382,7 @@ async function selectMenuChangeEventHandler(event){
 
     }catch(error){
         console.error('Error handling select menu change: ', error);
-
+        return [undefined, [], [] ];
     }
 }
 
