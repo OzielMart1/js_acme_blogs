@@ -33,6 +33,9 @@ return options;
 }
 //3 //fixed
 function toggleCommentSection(postId){
+    if(!postId){
+        return undefined;
+    }
     const section= document.querySelector(`section[data-post-id= "${postId}" ]`);
     if (section){
         section.classList.toggle('hide');
@@ -45,6 +48,9 @@ function toggleCommentSection(postId){
 }
 //4 //fixed
 function toggleCommentButton(postId){
+    if(!postId){
+        return undefined;
+    }
     const button= documet.querySelector(`button[data-post-id"${postId}"]`);
 
     if(button){
