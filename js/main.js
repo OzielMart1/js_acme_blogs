@@ -51,7 +51,7 @@ function toggleCommentButton(postId){
     if(!postId){
         return undefined;
     }
-    const button= documet.querySelector(`button[data-post-id"${postId}"]`);
+    const button= document.querySelector(`button[data-post-id"${postId}"]`);
 
     if(button){
         button.textContent=button.textContent ==='Show Comments'
@@ -83,7 +83,10 @@ function deleteChildElements(parentElement){
 //6 //fixed
 function addButtonListeners(){
     const buttons=document.querySelectorAll('main button');
-    if(buttons.length > 0){
+
+    if(buttons.length ===0){
+        return buttons;
+    }
         buttons.forEach(button=> {
             const postId= button.dataset.postId;
 
@@ -261,8 +264,8 @@ async function displayComments(postId){
     }
 }
 //15 //fixed
-async function createPosts(postss){
-    if(!posts){
+async function createPosts(posts){
+    if(!posts || !Array.isArray(posts)){
         return undefined;
     }
 
@@ -279,7 +282,7 @@ async function createPosts(postss){
             pBody.textContent= post.body;
             article.appendChild(pBody);
 
-            const pId= docment.createElement('p');
+            const pId= document.createElement('p');
             pId.textContent= `Post ID: ${post.id}`;
             article.appendChild(pId);
 
@@ -348,6 +351,10 @@ async function toggleComments(event,postId){
 }
 //18 
 async function refreshPosts(posts){
+    if(!posts || !Array.isArray(posts)){
+        return undefined;
+    }
+
     try{
         const removeButtons= removeButtonListener();
 
@@ -369,14 +376,18 @@ async function refreshPosts(posts){
 
 //19
 async function selectMenuChangeEventHandler(event){
+    if(!event){
+        return undefined;
+    }
+
     try{
         const selectMenu= event.target;
         selectMenu.disabled= true;
 
-        const userId= event.target.value|| 1;
+        const userId= selectMenu.value || 1;
 
         const posts= await getUserPosts(userId);
-        if(!posts){
+        if(!posts || posts.length===0 ){
             return [userId, [], [] ];
         }
 
