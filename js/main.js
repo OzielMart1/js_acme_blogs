@@ -68,7 +68,7 @@ function toggleCommentButton(postId){
 function deleteChildElements(parentElement){
 
     if(!parentElement || !(parentElement instanceof HTMLElement)){
-        console.log('Invalid parent element');
+        
         return undefined;
     }
 
@@ -266,7 +266,6 @@ async function displayComments(postId){
 //15 //fixed
 async function createPosts(posts){
     if(!posts || !Array.isArray(posts)|| post.length === 0){
-        console.log('No posts to create');
         return document.createDocumentFragment();
     }
 
@@ -290,11 +289,11 @@ async function createPosts(posts){
             const author = await getUser(post.userId);
 
             const pAuthor= document.createElement('p');
-            pAuthor.textContent= `Author: ${author?.name|| 'Unknown'} with ${author?.company?.name || 'No company'}`;
+            pAuthor.textContent= `Author: ${author.name|| 'Unknown'} with ${author.company.name || 'No company'}`;
             article.appendChild(pAuthor);
 
             const pCatchphrase= document.createElement('p');
-            pCatchphrase.textContent= `Company Catchphrase: "${author?.company?.catchPhrase|| 'No catchphrase available'}`;
+            pCatchphrase.textContent= `Company Catchphrase: "${author.company.catchPhrase|| 'No catchphrase available'}`;
             article.appendChild(pCathcphrase);
 
             const button = document.createElement('button');
@@ -403,28 +402,28 @@ async function refreshPosts(posts){
 //19
 async function selectMenuChangeEventHandler(event){
     if(!event|| !event.target){
-        console.error("Event or event.target is undefined.");        return undefined;
+        console.error("Event or event.target is undefined.");       
+         return undefined;
     }
 
     try{
         const selectMenu= event.target;
-        console.log("Selected value from the dropdown:", selectMenu.value);
+        
 
         selectMenu.disabled= true;
 
         const userId= selectMenu.value || 1;
-        console.log("Using userId:", userId);
+        
 
         const posts= await getUserPosts(userId);
-        console.log("Posts fetched for userId", userId, posts);
+        
 
         if(!posts || posts.length===0 ){
-            console.warn("No posts found for userId:", userId);
             return [userId, [], [] ];
         }
 
         const refreshPostsArray= await refreshPosts(posts);
-        console.log("Refresh Posts Array:", refreshPostsArray);
+        
 
 
         selectMenu.disable = false;
