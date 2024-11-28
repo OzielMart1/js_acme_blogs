@@ -51,7 +51,9 @@ function toggleCommentButton(postId){
     if(!postId){
         return undefined;
     }
+
     const button= document.querySelector(`button[data-post-id= "${postId}"]`);
+
 
     if(button){
         button.textContent=button.textContent ==='Show Comments'
@@ -85,7 +87,9 @@ function addButtonListeners(){
     const buttons=document.querySelectorAll('main button');
 
     if(buttons.length ===0){
-        return [];
+
+        return buttons;
+
     }
         buttons.forEach(button=> {
             const postId= button.dataset.postId;
@@ -265,9 +269,10 @@ async function displayComments(postId){
 }
 //15 //fixed
 async function createPosts(posts){
-    if(!posts || !Array.isArray(posts)|| post.length === 0){
-        console.log('No posts to create');
-        return document.createDocumentFragment();
+
+    if(!posts || !Array.isArray(posts)){
+        return undefined;
+
     }
 
     const fragment= document.createDocumentFragment();
@@ -284,7 +289,9 @@ async function createPosts(posts){
             article.appendChild(pBody);
 
             const pId= document.createElement('p');
-            pId.textContent= `Post ID: ${post.id || 'No ID available'}`;
+
+            pId.textContent= `Post ID: ${post.id}`;
+
             article.appendChild(pId);
 
             const author = await getUser(post.userId);
@@ -371,7 +378,7 @@ async function toggleComments(event,postId){
 //18 
 async function refreshPosts(posts){
     if(!posts || !Array.isArray(posts)){
-        console.error("No posts provided or posts is not an array: ", posts);
+
         return undefined;
     }
 
@@ -402,8 +409,10 @@ async function refreshPosts(posts){
 
 //19
 async function selectMenuChangeEventHandler(event){
-    if(!event|| !event.target){
-        console.error("Event or event.target is undefined.");        return undefined;
+
+    if(!event){
+        return undefined;
+
     }
 
     try{
@@ -413,13 +422,11 @@ async function selectMenuChangeEventHandler(event){
         selectMenu.disabled= true;
 
         const userId= selectMenu.value || 1;
-        console.log("Using userId:", userId);
+
 
         const posts= await getUserPosts(userId);
-        console.log("Posts fetched for userId", userId, posts);
-
         if(!posts || posts.length===0 ){
-            console.warn("No posts found for userId:", userId);
+
             return [userId, [], [] ];
         }
 
