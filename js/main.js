@@ -98,6 +98,7 @@ function addButtonListeners(){
                 });
             }
         });
+    }
 
 //7 // this one is correct 
 function removeButtonListeners(){ 
