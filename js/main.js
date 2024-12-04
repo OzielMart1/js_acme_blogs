@@ -55,7 +55,7 @@ function toggleCommentButton(postId){
 
     if(button){
         button.textContent=button.textContent ==='Show Comments'
-        ? 'Hide Comments': 'Show Commments';
+        ? 'Hide Comments': 'Show Comments';
         
         return button;
     }else{
@@ -85,7 +85,7 @@ function addButtonListeners(){
     const buttons=document.querySelectorAll('main button');
 
     if(buttons.length ===0){
-        return buttons;
+        return;
     }
         buttons.forEach(button=> {
             const postId= button.dataset.postId;
@@ -97,8 +97,6 @@ function addButtonListeners(){
             }
         });
     }
-    return true;
-}
 //7 // this one is correct 
 function removeButtonListeners(){ 
     const buttons=document.querySelectorAll('main button');
@@ -289,12 +287,12 @@ async function createPosts(posts){
             const author = await getUser(post.userId);
 
             const pAuthor= document.createElement('p');
-            pAuthor.textContent= `Author: ${author.name} with ${author.company.name}`;
+            pAuthor.textContent= `Author: ${author.name} from ${author.company.name}`;
             article.appendChild(pAuthor);
 
             const pCatchphrase= document.createElement('p');
             pCatchphrase.textContent= `Company Catchphrase: "${author.company.catchPhrase}`;
-            article.appendChild(pCathcphrase);
+            article.appendChild(pCatchphrase);
 
             const button = document.createElement('button');
             button.textContent= 'Show Comments';
@@ -319,7 +317,7 @@ async function displayPosts(posts){
         const noPostsMessage= createElemWithText('p', 'Select an Employee to display their posts.');
         noPostsMessage.classList.add('default-text');
         main.appendChild(noPostsMessage);
-        return noPostsMessage
+        return noPostsMessage;
     }
 
     const fragment=await createPosts(posts);
@@ -340,10 +338,12 @@ async function toggleComments(event,postId){
         
 
         const section = await toggleCommentSection(postId);
+       
 
         const button = toggleCommentButton(postId);
-
+      
         return [section,button];
+
     }catch(error){
         console.error('Error toggling comments: ', error);
         return undefined;
@@ -384,7 +384,7 @@ async function selectMenuChangeEventHandler(event){
         const selectMenu= event.target;
         selectMenu.disabled= true;
 
-        const userId= selectMenu.value || 1;
+        const userId= selectMenu.value ?parseInt(selectMenu.value,10): 1;
 
         const posts= await getUserPosts(userId);
         if(!posts || posts.length===0 ){
@@ -399,7 +399,7 @@ async function selectMenuChangeEventHandler(event){
 
     }catch(error){
         console.error('Error handling select menu change: ', error);
-        return [undefined, [], [] ];
+        return [1, [], [] ];
     }
 }
 
@@ -431,3 +431,7 @@ async function initApp(){
 
     });
 }
+
+document.addEventListener("DOMContentLoaded", function(){
+    initApp();
+});
