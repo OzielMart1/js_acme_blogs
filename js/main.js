@@ -51,7 +51,9 @@ function toggleCommentButton(postId){
     if(!postId){
         return undefined;
     }
-    const button= document.querySelector(`button[data-post-id"${postId}"]`);
+
+    const button= document.querySelector(`button[data-post-id= "${postId}"]`);
+
 
     if(button){
         button.textContent=button.textContent ==='Show Comments'
@@ -67,7 +69,7 @@ function toggleCommentButton(postId){
 //5 //fixed
 function deleteChildElements(parentElement){
 
-    if(!parentElement || !parentElement instanceof HTMLElement){
+    if(!parentElement || !(parentElement instanceof HTMLElement)){
         console.log('Invalid parent element');
         return undefined;
     }
@@ -85,18 +87,29 @@ function addButtonListeners(){
     const buttons=document.querySelectorAll('main button');
 
     if(buttons.length ===0){
+<<<<<<< HEAD
         return;
+=======
+
+        return buttons;
+
+>>>>>>> e782e3420b13f3cc0c2c4755ab539f3848ddc18d
     }
         buttons.forEach(button=> {
             const postId= button.dataset.postId;
 
             if(postId){
                 button.addEventListener('click', ()=>{
-                    toggleCommentSection(postId);
+                    toggleCommentSection(event,postId);
                 });
             }
         });
+<<<<<<< HEAD
     }
+=======
+    return buttons;
+}
+>>>>>>> e782e3420b13f3cc0c2c4755ab539f3848ddc18d
 //7 // this one is correct 
 function removeButtonListeners(){ 
     const buttons=document.querySelectorAll('main button');
@@ -114,6 +127,7 @@ function removeButtonListeners(){
 }
 //8 //fixed
 function createComments(comments){
+    
 
     if(!comments || !Array.isArray(comments)){
         return undefined;
@@ -126,7 +140,7 @@ function createComments(comments){
 
         const bodyPara=createElemWithText('p', comment.body|| 'No body text provied');
 
-        const emailPara=createElemWithText('p', `From: ${comment.email}|| No email provide`);
+        const emailPara=createElemWithText('p', `From: ${comment.email || 'No email provided'}`);
 
         article.appendChild(h3);
         article.appendChild(bodyPara);
@@ -263,8 +277,10 @@ async function displayComments(postId){
 }
 //15 //fixed
 async function createPosts(posts){
+
     if(!posts || !Array.isArray(posts)){
         return undefined;
+
     }
 
     const fragment= document.createDocumentFragment();
@@ -273,26 +289,37 @@ async function createPosts(posts){
             const article = document.createElement('article');
 
             const h2 = document.createElement('h2');
-            h2.textContent= post.title;
+            h2.textContent= post.title || 'No title provided';
             article.appendChild(h2);
 
             const pBody=document.createElement('p');
-            pBody.textContent= post.body;
+            pBody.textContent= post.body || 'No body content';
             article.appendChild(pBody);
 
             const pId= document.createElement('p');
+
             pId.textContent= `Post ID: ${post.id}`;
+
             article.appendChild(pId);
 
             const author = await getUser(post.userId);
 
             const pAuthor= document.createElement('p');
+<<<<<<< HEAD
             pAuthor.textContent= `Author: ${author.name} from ${author.company.name}`;
             article.appendChild(pAuthor);
 
             const pCatchphrase= document.createElement('p');
             pCatchphrase.textContent= `Company Catchphrase: "${author.company.catchPhrase}`;
             article.appendChild(pCatchphrase);
+=======
+            pAuthor.textContent= `Author: ${author?.name|| 'Unknown'} with ${author?.company?.name || 'No company'}`;
+            article.appendChild(pAuthor);
+
+            const pCatchphrase= document.createElement('p');
+            pCatchphrase.textContent= `Company Catchphrase: "${author?.company?.catchPhrase|| 'No catchphrase available'}`;
+            article.appendChild(pCathcphrase);
+>>>>>>> e782e3420b13f3cc0c2c4755ab539f3848ddc18d
 
             const button = document.createElement('button');
             button.textContent= 'Show Comments';
@@ -313,16 +340,32 @@ async function createPosts(posts){
 async function displayPosts(posts){
     const main= document.querySelector('main');
 
+    if(!main){
+        console.error("Main element not found.");
+        return;
+    }
+
     if(!posts||posts.length ===0){
         const noPostsMessage= createElemWithText('p', 'Select an Employee to display their posts.');
         noPostsMessage.classList.add('default-text');
         main.appendChild(noPostsMessage);
+<<<<<<< HEAD
+=======
+        console.log("No posts to display. Appended message: ", noPostsMessage);
+>>>>>>> e782e3420b13f3cc0c2c4755ab539f3848ddc18d
         return noPostsMessage;
     }
 
     const fragment=await createPosts(posts);
+    console.log("Created fragment with posts: ", fragment);
     main.appendChild(fragment);
     
+    if (fragment && fragment.children.length > 0) {
+        main.appendChild(fragment);
+        console.log("Appended posts to the main element.");
+    } else {
+        console.error("No posts created in the fragment.");
+    }
 
     return fragment;
 
@@ -341,7 +384,16 @@ async function toggleComments(event,postId){
        
 
         const button = toggleCommentButton(postId);
+<<<<<<< HEAD
       
+=======
+
+        if(!section || !button){
+            console.error("Either section or button is undefined.");
+            return undefined;
+        }
+
+>>>>>>> e782e3420b13f3cc0c2c4755ab539f3848ddc18d
         return [section,button];
 
     }catch(error){
@@ -352,18 +404,25 @@ async function toggleComments(event,postId){
 //18 
 async function refreshPosts(posts){
     if(!posts || !Array.isArray(posts)){
+
         return undefined;
     }
 
     try{
+        console.log("Received posts: ", posts);
+
         const removeButtons= removeButtonListener();
+        console.log("removeButtons: ", removeButtons);
 
         const main= document.querySelector('main');
         const clearedMain= deleteChildElements(main);
+        console.log("clearedMain: ", clearedMain);
 
         const fragment=await displayPosts(posts);
+        console.log("Fragment from displayPosts:", fragment);
 
         const addButtons= addButtonListeners();
+        console.log("addButtons:", addButtons);
 
         return [removeButtons, clearedMain, fragment, addButtons];
 
@@ -376,22 +435,30 @@ async function refreshPosts(posts){
 
 //19
 async function selectMenuChangeEventHandler(event){
+
     if(!event){
         return undefined;
+
     }
 
     try{
         const selectMenu= event.target;
+        console.log("Selected value from the dropdown:", selectMenu.value);
+
         selectMenu.disabled= true;
 
         const userId= selectMenu.value ?parseInt(selectMenu.value,10): 1;
 
+
         const posts= await getUserPosts(userId);
         if(!posts || posts.length===0 ){
+
             return [userId, [], [] ];
         }
 
         const refreshPostsArray= await refreshPosts(posts);
+        console.log("Refresh Posts Array:", refreshPostsArray);
+
 
         selectMenu.disable = false;
 
