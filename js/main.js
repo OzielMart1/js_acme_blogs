@@ -49,9 +49,9 @@ function toggleCommentSection(postId){
 //4 //fixed
 function toggleCommentButton(postId){
     if(!postId){
-        return undefined;
+        return null;
     }
-    const button= document.querySelector(`button[data-post-id"${postId}"]`);
+    const button= document.querySelector(`button[data-post-id="${postId}"]`);
 
     if(button){
         button.textContent=button.textContent ==='Show Comments'
@@ -67,7 +67,7 @@ function toggleCommentButton(postId){
 //5 //fixed
 function deleteChildElements(parentElement){
 
-    if(!parentElement || (!parentElement instanceof HTMLElement)){
+    if(!parentElement || !(parentElement instanceof HTMLElement)){
         console.log('Invalid parent element');
         return undefined;
     }
@@ -86,7 +86,7 @@ function addButtonListeners(){
 
     if(buttons.length ===0){
 
-        return buttons;
+        return false; // might just be buttons
 
     }
         buttons.forEach(button=> {
@@ -98,7 +98,7 @@ function addButtonListeners(){
                 });
             }
         });
-        return buttons;
+        return true; // might just be buttons
     }
 
 //7 // this one is correct 
@@ -130,8 +130,7 @@ function createComments(comments){
 
         const bodyPara=createElemWithText('p', comment.body|| 'No body text provied');
 
-        const emailPara=createElemWithText('p', `
-            From : ${comment.email ? comment.email: 'No email provided'}`);
+        const emailPara=createElemWithText('p', `From : ${comment.email ? comment.email: 'No email provided'}`);
 
         article.appendChild(h3);
         article.appendChild(bodyPara);
@@ -304,7 +303,11 @@ async function createPosts(posts){
             button.dataset.postId= post.id;
             article.appendChild(button);
 
-            fragment.appendChild(article);
+            const section = document.createElement('section');
+            section.appendChild(article);
+
+            fragment.appendChild(section);
+
         }catch(error){
             console.error('Error processing post: ', error);
 
@@ -343,9 +346,16 @@ async function toggleComments(event,postId){
         
 
         const section = await toggleCommentSection(postId);
+        if(!section || section.tagName!== 'SECTION'){
+            console.error('Invalid section returned');
+            return undefined;
+        }
        
-
         const button = toggleCommentButton(postId);
+        if(!button || button.tagName!=='BUTTON'){
+            console.error('Invalid button returned');
+            return undefined;
+        }
       
         return [section,button];
 
@@ -357,18 +367,36 @@ async function toggleComments(event,postId){
 //18 
 async function refreshPosts(posts){
     if(!posts || !Array.isArray(posts)){
-        return undefined;
+        console.error('Invalid posts array');
+        return [];
     }
 
     try{
         const removeButtons= removeButtonListener();
+        if(removeButtons===undefined){
+            console.error('removeButtonListener returned undefined');
+        }
 
         const main= document.querySelector('main');
+        if(!main){
+            console.error('Main element not found');
+            return [];
+        }
         const clearedMain= deleteChildElements(main);
+        if (clearedMain === undefined) {
+            console.error('deleteChildElements returned undefined');
+        }
 
         const fragment=await displayPosts(posts);
+        if (!fragment || fragment.nodeType !== 11) { 
+            console.error('displayPosts returned an invalid result');
+            return [];
+        }
 
         const addButtons= addButtonListeners();
+        if (addButtons === undefined) {
+            console.error('addButtonListeners returned undefined');
+        }
 
         return [removeButtons, clearedMain, fragment, addButtons];
 
@@ -389,14 +417,18 @@ async function selectMenuChangeEventHandler(event){
         const selectMenu= event.target;
         selectMenu.disabled= true;
 
-        const userId= selectMenu.value ?parseInt(selectMenu.value,10): 1;
+        const userId= selectMenu.value ? parseInt(selectMenu.value,10): 1;
 
         const posts= await getUserPosts(userId);
-        if(!posts || posts.length===0 ){
+        if(!Array.isArray(posts)|| posts.length===0){
             return [userId, [], [] ];
         }
+      
 
         const refreshPostsArray= await refreshPosts(posts);
+        if(!Array.isArray(refreshPostsArray)){
+            console.error('refreshPosts did not return a valid array: ', refreshPostsArray);
+        }
 
         selectMenu.disable = false;
 
