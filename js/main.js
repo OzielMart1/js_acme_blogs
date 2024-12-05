@@ -51,7 +51,7 @@ function toggleCommentButton(postId){
     if(!postId){
         return undefined;
     }
-    const buttons = Array.from(document.getElementsByTagName(button));
+    const buttons = Array.from(document.getElementsByTagName('button'));
     const button = buttons.find(el => el.dataset.postId == postId);
     if(!button){
         return null;
@@ -95,7 +95,7 @@ function addButtonListeners(){
                 });
             }
         });
-        return buttons; 
+        return true; 
     }
 
 //7 // this one is correct 
@@ -288,7 +288,7 @@ async function createPosts(posts){
             article.appendChild(pAuthor);
 
             const pCatchphrase= document.createElement('p');
-            pCatchphrase.textContent= `Company Catchphrase: "${author.company.catchPhrase}`;
+            pCatchphrase.textContent= author.company.catchPhrase;
             article.appendChild(pCatchphrase);
 
             const button = document.createElement('button');
@@ -344,7 +344,7 @@ async function toggleComments(event,postId){
     }
     try{
         const section = toggleCommentSection(postId);
-        if(!section || section.tagName!== 'SECTION'){
+        if(!section || section.tagName !== 'SECTION'){
             console.error('Invalid section returned');
             return undefined;
         }
@@ -366,7 +366,7 @@ async function toggleComments(event,postId){
 async function refreshPosts(posts){
     if(!posts || !Array.isArray(posts)){
         console.error('Invalid posts array');
-        return [];
+        return undefined;
     }
 
     try{
@@ -374,17 +374,25 @@ async function refreshPosts(posts){
         const main= document.querySelector('main');
         if(!main){
             console.error('Main element not found');
-            return [];
+            return undefined;
         }
         const clearedMain= deleteChildElements(main);
         const fragment=await displayPosts(posts);
+        if(!fragment || fragment.nodeType !== 11){
+            console.error('Invalid fragment returned from displayPosts');
+            return undefined;
+        }
         const addButtons= addButtonListeners();
+        if(!addButtons){
+            console.error('addButtonListeners returned invalid result');
+            return undefined;
+        }
 
         return [removeButtons, clearedMain, fragment, addButtons];
 
     }catch(error){
         console.error('Error refreshing posts: ', error);
-        return [];
+        return undefined;
     }
 
 }
@@ -408,6 +416,7 @@ async function selectMenuChangeEventHandler(event){
         const refreshPostsArray= await refreshPosts(posts);
         if(!Array.isArray(refreshPostsArray)){
             console.error('refreshPosts did not return a valid array: ', refreshPostsArray);
+            return [userId, posts, []];
         }
 
         selectMenu.disable = false;
