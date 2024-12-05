@@ -79,12 +79,12 @@ function deleteChildElements(parentElement){
 function addButtonListeners(){
     const main= document.querySelector('main');
     if(!main){
-        return[];
+        return false;
     }
 
     const buttons=main.querySelectorAll('button');
     if(buttons.length===0){
-        return[];
+        return false;
     }
         buttons.forEach(button=> {
             const postId= button.dataset.postId;
@@ -93,9 +93,11 @@ function addButtonListeners(){
                 button.addEventListener('click', ()=>{
                     toggleCommentSection(postId);
                 });
+            }else{
+                console.error('Button does not have a postId');
             }
         });
-        return Array.from(buttons); 
+        return true; 
     }
 
 //7 // this one is correct 
@@ -367,7 +369,7 @@ async function toggleComments(event,postId){
 async function refreshPosts(posts){
     if(!posts || !Array.isArray(posts)){
         console.error('Invalid posts array');
-        return [];
+        return undefined;
     }
 
     try{
@@ -376,25 +378,25 @@ async function refreshPosts(posts){
         const main= document.querySelector('main');
         if(!main){
             console.error('Main element not found');
-            return [];
+            return undefined;
         }
         const clearedMain= deleteChildElements(main) || [];
         const fragment=await displayPosts(posts);
         if(!fragment || fragment.nodeType !== 11){
             console.error('Invalid fragment returned from displayPosts');
-            return [];
+            return undefined;
         }
         const addButtons= addButtonListeners();
         if(!addButtons){
             console.error('addButtonListeners returned invalid result');
-            return [];
+            return undefined;
         }
 
         return [removeButtons, clearedMain, fragment, addButtons];
 
     }catch(error){
         console.error('Error refreshing posts: ', error);
-        return [];
+        return undefined;
     }
 
 }
@@ -420,7 +422,7 @@ async function selectMenuChangeEventHandler(event){
         }
       
         const refreshPostsArray= await refreshPosts(posts);
-        if(!Array.isArray(refreshPostsArray|| refreshPostsArray.length ===0 )){
+        if(!Array.isArray(refreshPostsArray) || refreshPostsArray.length ===0 ){
             console.error('refreshPosts did not return a valid array: ', refreshPostsArray);
             return [userId, posts, []];
         }
