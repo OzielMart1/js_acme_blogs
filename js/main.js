@@ -49,29 +49,24 @@ function toggleCommentSection(postId){
 //4 //fixed
 function toggleCommentButton(postId){
     if(!postId){
+        return undefined;
+    }
+    const buttons = Array.from(document.getElementsByTagName(button));
+    const button = buttons.find(el => el.dataset.postId == postId);
+    if(!button){
         return null;
     }
-    const button = document.querySelector(`button[data-post-id="${postId}"]`);
-
-    if(button){
-        button.textContent=button.textContent ==='Show Comments'
-        ? 'Hide Comments': 'Show Comments';
-        
-        return button;
-    }else{
-        console.log('Button not found');
-    }
-    return null;
+    button.textContent=button.textContent ==='Show Comments' ? 'Hide Comments': 'Show Comments';
+    return button;
 }
 
 //5 //fixed
 function deleteChildElements(parentElement){
 
     if(!parentElement || !(parentElement instanceof HTMLElement)){
-        console.log('Invalid parent element');
+        
         return undefined;
     }
-
     let child=parentElement.lastElementChild;
     while(child){
         parentElement.removeChild(child);
@@ -82,12 +77,14 @@ function deleteChildElements(parentElement){
 
 //6 //fixed
 function addButtonListeners(){
-    const buttons=document.querySelectorAll('main button');
+    const main= document.querySelector('main');
+    if(!main){
+        return[];
+    }
 
-    if(buttons.length ===0){
-
-        return false; // might just be buttons
-
+    const buttons=main.querySelectorAll('button');
+    if(buttons.length===0){
+        return[];
     }
         buttons.forEach(button=> {
             const postId= button.dataset.postId;
@@ -98,7 +95,7 @@ function addButtonListeners(){
                 });
             }
         });
-        return true; // might just be buttons
+        return buttons; 
     }
 
 //7 // this one is correct 
@@ -119,18 +116,19 @@ function removeButtonListeners(){
 //8 //fixed
 function createComments(comments){
 
-    if(!comments || !Array.isArray(comments)){
+    if(!comments){
         return undefined;
     }
     const fragment=document.createDocumentFragment();
 
     comments.forEach(comment=>{
         const article=document.createElement('article');
+
         const h3=createElemWithText('h3', comment.name || 'No name provided');
 
         const bodyPara=createElemWithText('p', comment.body|| 'No body text provied');
 
-        const emailPara=createElemWithText('p', `From : ${comment.email ? comment.email: 'No email provided'}`);
+        const emailPara=createElemWithText('p', `From: ${comment.email || 'No email provided'}`);
 
         article.appendChild(h3);
         article.appendChild(bodyPara);
@@ -246,24 +244,20 @@ async function displayComments(postId){
     if(!postId){
         return undefined;
     }
+    const section = document.createElement('section');
+    section.dataset.postId = postId;
+    section.classList.add('comments', 'hide');
+
     try{
-        const section = document.createElement('section');
-        section.dataset.postId= postId;
-
-        section.classList.add('comments', 'hide');
-
         const comments= await getPostComments(postId);
-
-        if(comments && Array.isArray(comments)){
-            const fragment=createComments(comments);
-            section.appendChild(fragment);
-        }
-        
-        return section;
+        const fragment= createComments(comments || []);
+        section.appendChild(fragment);
     }catch(error){
         console.error('Error displaying comments: ', error);
-        throw error;
+        return undefined;
     }
+    return section;
+  
 }
 //15 //fixed
 async function createPosts(posts){
@@ -289,9 +283,8 @@ async function createPosts(posts){
             article.appendChild(pId);
 
             const author = await getUser(post.userId);
-
             const pAuthor= document.createElement('p');
-            pAuthor.textContent= `Author: ${author.name} from ${author.company.name}`;
+            pAuthor.textContent= `Author: ${author.name} with ${author.company.name}`;
             article.appendChild(pAuthor);
 
             const pCatchphrase= document.createElement('p');
@@ -303,10 +296,11 @@ async function createPosts(posts){
             button.dataset.postId= post.id;
             article.appendChild(button);
 
-            const section = document.createElement('section');
-            section.appendChild(article);
+            const section = await displayComments(post.id);
+            article.appendChild(section);
+            
 
-            fragment.appendChild(section);
+            fragment.appendChild(article);
 
         }catch(error){
             console.error('Error processing post: ', error);
@@ -320,6 +314,10 @@ async function createPosts(posts){
 //16 
 async function displayPosts(posts){
     const main= document.querySelector('main');
+    if(!main){
+        console.error("Main element not found");
+        return;
+    }
 
     if(!posts||posts.length ===0){
         const noPostsMessage= createElemWithText('p', 'Select an Employee to display their posts.');
@@ -329,10 +327,12 @@ async function displayPosts(posts){
     }
 
     const fragment=await createPosts(posts);
-    main.appendChild(fragment);
-    
-
-    return fragment;
+    if(fragment){
+        main.appendChild(fragment);
+        return fragment;l
+    }
+    console.error("Failed to create posts fragment");
+    return null;
 
 }
 
@@ -343,9 +343,7 @@ async function toggleComments(event,postId){
         return undefined;
     }
     try{
-        
-
-        const section = await toggleCommentSection(postId);
+        const section = toggleCommentSection(postId);
         if(!section || section.tagName!== 'SECTION'){
             console.error('Invalid section returned');
             return undefined;
@@ -373,30 +371,14 @@ async function refreshPosts(posts){
 
     try{
         const removeButtons= removeButtonListener();
-        if(removeButtons===undefined){
-            console.error('removeButtonListener returned undefined');
-        }
-
         const main= document.querySelector('main');
         if(!main){
             console.error('Main element not found');
             return [];
         }
         const clearedMain= deleteChildElements(main);
-        if (clearedMain === undefined) {
-            console.error('deleteChildElements returned undefined');
-        }
-
         const fragment=await displayPosts(posts);
-        if (!fragment || fragment.nodeType !== 11) { 
-            console.error('displayPosts returned an invalid result');
-            return [];
-        }
-
         const addButtons= addButtonListeners();
-        if (addButtons === undefined) {
-            console.error('addButtonListeners returned undefined');
-        }
 
         return [removeButtons, clearedMain, fragment, addButtons];
 
@@ -414,17 +396,15 @@ async function selectMenuChangeEventHandler(event){
     }
 
     try{
-        const selectMenu= event.target;
+        const selectMenu= document.getElementById("selectMenu");
         selectMenu.disabled= true;
 
-        const userId= selectMenu.value ? parseInt(selectMenu.value,10): 1;
-
-        const posts= await getUserPosts(userId);
+        const userId= event?.target?.value || 1;
+        const posts = await getUserPosts(userId);
         if(!Array.isArray(posts)|| posts.length===0){
             return [userId, [], [] ];
         }
       
-
         const refreshPostsArray= await refreshPosts(posts);
         if(!Array.isArray(refreshPostsArray)){
             console.error('refreshPosts did not return a valid array: ', refreshPostsArray);
