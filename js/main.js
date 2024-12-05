@@ -36,7 +36,7 @@ function toggleCommentSection(postId){
     if(!postId){
         return undefined;
     }
-    const section= document.querySelector(`section[data-post-id= "${postId}" ]`);
+    const section= document.querySelector(`section[data-post-id="${postId}" ]`);
     if (section){
         section.classList.toggle('hide');
 
@@ -67,7 +67,7 @@ function toggleCommentButton(postId){
 //5 //fixed
 function deleteChildElements(parentElement){
 
-    if(!parentElement || !parentElement instanceof HTMLElement){
+    if(!parentElement || (!parentElement instanceof HTMLElement)){
         console.log('Invalid parent element');
         return undefined;
     }
@@ -86,7 +86,7 @@ function addButtonListeners(){
 
     if(buttons.length ===0){
 
-        return;
+        return buttons;
 
     }
         buttons.forEach(button=> {
@@ -98,6 +98,7 @@ function addButtonListeners(){
                 });
             }
         });
+        return buttons;
     }
 
 //7 // this one is correct 
@@ -129,7 +130,8 @@ function createComments(comments){
 
         const bodyPara=createElemWithText('p', comment.body|| 'No body text provied');
 
-        const emailPara=createElemWithText('p', `From: ${comment.email}|| No email provide`);
+        const emailPara=createElemWithText('p', `
+            From : ${comment.email ? comment.email: 'No email provided'}`);
 
         article.appendChild(h3);
         article.appendChild(bodyPara);
