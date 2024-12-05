@@ -95,7 +95,7 @@ function addButtonListeners(){
                 });
             }
         });
-        return true; 
+        return Array.from(buttons); 
     }
 
 //7 // this one is correct 
@@ -344,12 +344,13 @@ async function toggleComments(event,postId){
     }
     try{
         const section = toggleCommentSection(postId);
+        const button = toggleCommentButton(postId);
+
         if(!section || section.tagName !== 'SECTION'){
             console.error('Invalid section returned');
             return undefined;
         }
        
-        const button = toggleCommentButton(postId);
         if(!button || button.tagName!=='BUTTON'){
             console.error('Invalid button returned');
             return undefined;
@@ -366,33 +367,34 @@ async function toggleComments(event,postId){
 async function refreshPosts(posts){
     if(!posts || !Array.isArray(posts)){
         console.error('Invalid posts array');
-        return undefined;
+        return [];
     }
 
     try{
-        const removeButtons= removeButtonListener();
+        const removeButtons= removeButtonListener() || [];
+
         const main= document.querySelector('main');
         if(!main){
             console.error('Main element not found');
-            return undefined;
+            return [];
         }
-        const clearedMain= deleteChildElements(main);
+        const clearedMain= deleteChildElements(main) || [];
         const fragment=await displayPosts(posts);
         if(!fragment || fragment.nodeType !== 11){
             console.error('Invalid fragment returned from displayPosts');
-            return undefined;
+            return [];
         }
         const addButtons= addButtonListeners();
         if(!addButtons){
             console.error('addButtonListeners returned invalid result');
-            return undefined;
+            return [];
         }
 
         return [removeButtons, clearedMain, fragment, addButtons];
 
     }catch(error){
         console.error('Error refreshing posts: ', error);
-        return undefined;
+        return [];
     }
 
 }
@@ -405,6 +407,10 @@ async function selectMenuChangeEventHandler(event){
 
     try{
         const selectMenu= document.getElementById("selectMenu");
+        if(!selectMenu){
+            console.error('Select menu not found');
+            return [1, [] , [] ];
+        }
         selectMenu.disabled= true;
 
         const userId= event?.target?.value || 1;
@@ -414,7 +420,7 @@ async function selectMenuChangeEventHandler(event){
         }
       
         const refreshPostsArray= await refreshPosts(posts);
-        if(!Array.isArray(refreshPostsArray)){
+        if(!Array.isArray(refreshPostsArray|| refreshPostsArray.length ===0 )){
             console.error('refreshPosts did not return a valid array: ', refreshPostsArray);
             return [userId, posts, []];
         }
