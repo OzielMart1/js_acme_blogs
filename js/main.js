@@ -51,7 +51,7 @@ function toggleCommentButton(postId){
     if(!postId){
         return null;
     }
-    const button= document.querySelector(`button[data-post-id="${postId}"]`);
+    const button = document.querySelector(`button[data-post-id="${postId}"]`);
 
     if(button){
         button.textContent=button.textContent ==='Show Comments'
