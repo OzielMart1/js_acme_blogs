@@ -342,6 +342,7 @@ async function displayPosts(posts){
 
 async function toggleComments(event,postId){
     if(!event|| !postId){
+        console.warn('Missing required parameters');
         return undefined;
     }
     try{
@@ -386,7 +387,7 @@ async function refreshPosts(posts){
             console.error('Invalid fragment returned from displayPosts');
             return undefined;
         }
-        const addButtons= addButtonListeners();
+        const addButtons= addButtonListeners() || [];
         if(!addButtons){
             console.error('addButtonListeners returned invalid result');
             return undefined;
@@ -411,7 +412,7 @@ async function selectMenuChangeEventHandler(event){
         const selectMenu= document.getElementById("selectMenu");
         if(!selectMenu){
             console.error('Select menu not found');
-            return [1, [] , [] ];
+            return [1, [] , []];
         }
         selectMenu.disabled= true;
 
@@ -424,6 +425,7 @@ async function selectMenuChangeEventHandler(event){
         const refreshPostsArray= await refreshPosts(posts);
         if(!Array.isArray(refreshPostsArray) || refreshPostsArray.length ===0 ){
             console.error('refreshPosts did not return a valid array: ', refreshPostsArray);
+            selectMenu.disabled= false;
             return [userId, posts, []];
         }
 
@@ -466,7 +468,6 @@ async function initApp(){
     });
 }
 
-document.addEventListener("DOMContentLoaded", function(){
-    initApp();
-});
+document.addEventListener("DOMContentLoaded", initApp);
+
 //hello
